@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Classification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%; /* Adjust the width as needed */
+            max-width: 600px; /* Add a max-width to prevent excessive stretching */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin: 20px 0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        label:hover {
+            background-color: #2e86c1;
+        }
+
+        input[type="submit"] {
+            background-color: #2e86c1;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #1e63a9;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #imageContainer {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Classification</h1>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <label for="file">Select an Image</label>
+            <input type="file" name="file" id="file" accept="image/*">
+            <input type="submit" value="Classify Image">
+        </form>
+
+        <div id="result"></div>
+        <div id="imageContainer">
+            <h2>Uploaded Image</h2>
+            <img id="uploadedImage" alt="Uploaded Image">
+        </div>
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+        const resultDiv = document.getElementById('result');
+        const imageContainer = document.getElementById('imageContainer');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const fileInput = document.getElementById('file');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<p>Predicted class: ${data.predicted_class}</p>`;
+                    imageContainer.style.display = 'block';
+                    uploadedImage.src = URL.createObjectURL(fileInput.files[0]);
+                } else {
+                    resultDiv.innerHTML = '<p>Error during classification.</p>';
+                    imageContainer.style.display = 'none';
+                }
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = '<p>Error during classification.</p>';
+                imageContainer.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
